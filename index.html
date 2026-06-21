@@ -1,1 +1,275 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎪 ดินแดนนักผจญภัยแห่งแป้นพิมพ์</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+    <audio id="snd-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-84.wav" preload="auto"></audio>
+    <audio id="snd-success" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-84.wav" preload="auto"></audio>
+    <audio id="snd-error" src="https://assets.mixkit.co/active_storage/sfx/951/951-84.wav" preload="auto"></audio>
+    <audio id="snd-unlock" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-84.wav" preload="auto"></audio>
+
+    <div class="game-container">
+        
+        <div id="screen-login" class="screen active">
+            <div class="class-3d login-card">
+                <button class="btn-3d btn-secondary teacher-toggle" onclick="switchScreen('screen-teacher')">
+                    <i class="fa-solid fa-chalkboard-user"></i> สำหรับคุณครู
+                </button>
+                <div class="avatar-3d">🏕️</div>
+                <h1>ผจญภัยแดนแป้นพิมพ์</h1>
+                <p class="subtitle">ยินดีต้อนรับสู่อาณาจักรฝึกพิมพ์สำหรับผู้กล้าตัวน้อย!</p>
+                
+                <div class="input-group">
+                    <label for="student-class"><i class="fa-solid fa-school"></i> ชั้นเรียน (เช่น ป.3/1):</label>
+                    <input type="text" id="student-class" placeholder="กรอกชั้นเรียนของคุณ">
+                </div>
+                <div class="input-group">
+                    <label for="student-number"><i class="fa-solid fa-arrow-1-9"></i> เลขที่:</label>
+                    <input type="number" id="student-number" placeholder="กรอกเลขที่ตัวจริง" min="1">
+                </div>
+                
+                <button class="btn-3d btn-primary btn-large" onclick="handleLogin()">
+                    ออกเดินทางเลย! <i class="fa-solid fa-compass"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="screen-map" class="screen">
+            <div class="class-3d">
+                <div class="header-status">
+                    <div><i class="fa-solid fa-user"></i> นักผจญภัย: ชั้น <span id="display-class">-</span> เลขที่ <span id="display-number">-</span></div>
+                    <button class="btn-3d btn-danger" style="padding:5px 12px; font-size:14px;" onclick="logout()">ออกจากระบบ</button>
+                </div>
+                
+                <h2>🗺️ แผนที่ฐานฝึกวิชา</h2>
+                <div class="map-path">
+                    <div id="node-m1" class="map-node active" onclick="startMission(1)">
+                        <div class="node-icon">🌱</div>
+                        <div class="node-title">ภารกิจที่ 1 : จุดเริ่มต้นนักพิมพ์จิ๋ว (ก่อนเรียน)</div>
+                        <div id="status-m1" class="node-status">🔓 พร้อมลุย</div>
+                    </div>
+                    <div id="node-m2" class="map-node locked" onclick="startMission(2)">
+                        <div class="node-icon">🎬</div>
+                        <div class="node-title">ภารกิจที่ 2 : คาถาจัดระเบียบนิ้ว (ดูวิดีโอ)</div>
+                        <div id="status-m2" class="node-status">🔒 ล็อกอยู่</div>
+                    </div>
+                    <div id="node-m3" class="map-node locked" onclick="startMission(3)">
+                        <div class="node-icon">📖</div>
+                        <div class="node-title">ภารกิจที่ 3 : หมู่บ้านอักษรไทย (แป้นเหย้า)</div>
+                        <div id="status-m3" class="node-status">🔒 ล็อกอยู่</div>
+                    </div>
+                    <div id="node-g1" class="map-node locked" onclick="startMission('g1')" style="background:#e3faf2;">
+                        <div class="node-icon">💎</div>
+                        <div class="node-title">ด่านฝึกฝีมือ : ล่าขุมทรัพย์ตัวอักษร</div>
+                        <div id="status-g1" class="node-status">🔒 ล็อกอยู่</div>
+                    </div>
+                    <div id="node-m4" class="map-node locked" onclick="startMission(4)">
+                        <div class="node-icon">🏰</div>
+                        <div class="node-title">ภารกิจที่ 4 : ปราสาทปุ่มวิเศษ (Spacebar/Enter)</div>
+                        <div id="status-m4" class="node-status">🔒 ล็อกอยู่</div>
+                    </div>
+                    <div id="node-g2" class="map-node locked" onclick="startMission('g2')" style="background:#e3faf2;">
+                        <div class="node-icon">⚔️</div>
+                        <div class="node-title">ด่านฝึกฝีมือ : ศึกผู้พิทักษ์ปุ่มวิเศษ</div>
+                        <div id="status-g2" class="node-status">🔒 ล็อกอยู่</div>
+                    </div>
+                    <div id="node-m5" class="map-node locked" onclick="startMission(5)">
+                        <div class="node-icon">🏆</div>
+                        <div class="node-title">ภารกิจที่ 5 : บททดสอบผู้กล้า (หลังเรียน)</div>
+                        <div id="status-m5" class="node-status">🔒 ล็อกอยู่</div>
+                    </div>
+                    <div id="node-m6" class="map-node locked" onclick="startMission(6)">
+                        <div class="node-icon">📜</div>
+                        <div class="node-title">ภารกิจที่ 6 : สมุดบันทึกนักผจญภัย</div>
+                        <div id="status-m6" class="node-status">🔒 ล็อกอยู่</div>
+                    </div>
+                </div>
+                
+                <div style="text-align:center; margin-top:20px;">
+                    <button id="btn-hall-fame" class="btn-3d btn-success score-hidden" onclick="switchScreen('screen-hall')">
+                        🏅 รับใบประกาศนียบัตรยอดผู้กล้า
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-typing-test" class="screen">
+            <div class="class-3d">
+                <h2 id="typing-title">🌱 ภารกิจประเมินผล</h2>
+                <p id="typing-desc" style="text-align:center; margin-bottom:15px; color:#555;"></p>
+                
+                <div class="live-stats">
+                    <div>⏱️ เวลา: <span id="timer-val">0</span> วินาที</div>
+                </div>
+
+                <div class="word-display-box">
+                    <p style="font-size:14px; color:#777; margin-bottom:5px;">ข้อความต้นฉบับ:</p>
+                    <h3 id="target-text">ฉันหิวข้าว</h3>
+                </div>
+
+                <div class="input-group">
+                    <label for="typing-input">✍️ พิมพ์ข้อความให้เหมือนข้างบนเป๊ะๆ:</label>
+                    <input type="text" id="typing-input" placeholder="คลิกที่นี่แล้วเริ่มพิมพ์ได้เลย..." autocomplete="off" oninput="startTypingTimer()">
+                </div>
+
+                <div style="display:flex; gap:15px; margin-top:25px;">
+                    <button class="btn-3d btn-secondary" style="flex:1;" onclick="switchScreen('screen-map')">
+                        <i class="fa-solid fa-arrow-left"></i> กลับแผนที่
+                    </button>
+                    <button class="btn-3d btn-success" style="flex:2;" onclick="submitTypingTest()">
+                        ส่งภารกิจสำเร็จ <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-mission2" class="screen">
+            <div class="class-3d" style="text-align:center;">
+                <h2>🎬 ภารกิจที่ 2 : คาถาจัดระเบียบนิ้ว</h2>
+                <p>เรียนรู้วิธีการวางมือบนคีย์บอร์ดที่ถูกต้องเพื่อความไวแสงจากวิดีโอนี้จ้า</p>
+                
+                <div class="video-wrapper">
+                    <div class="video-placeholder">
+                        <i class="fa-brands fa-youtube" style="font-size:60px; color:red; margin-bottom:10px;"></i>
+                        <p style="padding: 0 15px;">[ แนะนำเปิดสื่อวิดีโอการวางนิ้วบนคีย์บอร์ดให้นักเรียนดูร่วมกันในห้องเรียน ]</p>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:15px;">
+                    <button class="btn-3d btn-secondary" style="flex:1;" onclick="switchScreen('screen-map')">กลับแผนที่</button>
+                    <button class="btn-3d btn-success" style="flex:1;" onclick="completeMission2()">เรียนจบแล้ว ลุยต่อเลย! 🎉</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-book" class="screen">
+            <div class="class-3d">
+                <h2 id="book-title">📖 สมุดความรู้</h2>
+                
+                <div id="book-anim-target" class="book-container">
+                    <div id="book-content-area"></div>
+                </div>
+
+                <div class="book-controls">
+                    <button class="btn-3d btn-secondary" onclick="changePage(-1)"><i class="fa-solid fa-chevron-left"></i> หน้าก่อน</button>
+                    <div>หน้า <span id="current-page-num">1</span> / 3</div>
+                    <button class="btn-3d btn-primary" onclick="changePage(1)">หน้าถัดไป <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-game" class="screen">
+            <div class="class-3d">
+                <h2 id="game-title">💎 ด่านฝึกฝีมือ</h2>
+                <div class="game-header">
+                    <div>ข้อที่: <span id="game-question-num">1</span>/10</div>
+                    <div>คะแนนสะสม: <span id="game-score" style="color:#0ca678;">0</span> ⭐</div>
+                </div>
+                
+                <div class="game-progress-bar">
+                    <div id="game-progress" class="progress-fill" style="width: 10%;"></div>
+                </div>
+
+                <div class="game-core-box">
+                    <p id="game-instruction" style="font-size:14px; color:#666; margin-bottom:5px;"></p>
+                    <h1 id="game-target-word">คำถาม</h1>
+                    <div id="star-animation-area" style="position:absolute; bottom:5px; width:100%; text-align:center;"></div>
+                </div>
+
+                <div class="input-group">
+                    <input type="text" id="game-input" class="game-input-box" placeholder="พิมพ์ใส่ช่องนี้เลย..." autocomplete="off">
+                </div>
+                
+                <div style="text-align:center; margin-top:20px;">
+                    <button class="btn-3d btn-secondary" onclick="switchScreen('screen-map')">ยอมแพ้ ย้ายไปตั้งหลักที่แผนที่</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-hall" class="screen">
+            <div id="certificate-print-area" class="class-3d certificate-box">
+                <h1>📜 ใบประกาศเกียรติคุณ</h1>
+                <p style="font-size:18px; margin-top:10px;">มอบให้แก่นักผจญภัยผู้เก่งกาจ</p>
+                <h2 style="color:#e67e22; font-size:32px; margin:15px 0;">ชั้น <span id="cert-class">ป.3</span> เลขที่ <span id="cert-number">99</span></h2>
+                <p style="max-width:550px; margin:0 auto; line-height:1.6;">ที่ได้ฟันฝ่าอุปสรรคและเคลียร์ภารกิจครบถ้วนในดินแดนฝึกพิมพ์ ผจญภัยแป้นพิมพ์ ได้สำเร็จเป็นที่ประจักษ์</p>
+                
+                <div id="medal-icon" class="badge-display">🥇</div>
+                <h3 id="medal-title">เหรียญทองนักพิมพ์ยอดเยี่ยม</h3>
+
+                <div class="final-stats-grid">
+                    <div class="stat-item"><strong>คะแนนรวมทั้งหมด</strong><span id="f-score">0</span></div>
+                    <div class="stat-item"><strong>ความแม่นยำเฉลี่ย</strong><span id="f-accuracy">0</span>%</div>
+                </div>
+            </div>
+            
+            <div style="display:flex; gap:15px; margin-top:20px;">
+                <button class="btn-3d btn-secondary" style="flex:1;" onclick="switchScreen('screen-map')">กลับหน้าหลัก</button>
+                <button class="btn-3d btn-success" style="flex:1;" onclick="downloadPDF()"><i class="fa-solid fa-file-pdf"></i> เซฟใบประกาศนียบัตร (PDF)</button>
+            </div>
+        </div>
+
+        <div id="screen-teacher" class="screen">
+            <div class="class-3d" style="max-width:1000px; margin:0 auto;">
+                <h2><i class="fa-solid fa-chalkboard-user"></i> แดชบอร์ดติดตามคะแนนของเด็กรวม (หลังบ้าน)</h2>
+                <p class="subtitle" style="text-align:center;">ระบบวิเคราะห์พัฒนาการความเร็ว-ความแม่นยำก่อนและหลังเรียน</p>
+
+                <div class="teacher-grid">
+                    <div class="t-card" style="background:#e8f4fd; border-color:#228be6;">
+                        <div>จำนวนนักเรียนที่ส่งคะแนนแล้ว</div>
+                        <div id="t-total-students" class="t-stat">0 คน</div>
+                    </div>
+                </div>
+
+                <div style="background:white; border:3px solid #4a4a4a; padding:15px; border-radius:15px; margin-bottom:25px;">
+                    <h4 style="margin-bottom:10px;"><i class="fa-solid fa-chart-line"></i> กราฟเปรียบเทียบความแม่นยำรวมของนักเรียนคนปัจจุบัน (%)</h4>
+                    <canvas id="dashboardChart" style="max-height: 280px;"></canvas>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h4 style="margin:0;"><i class="fa-solid fa-list-check"></i> ตารางสถิติรายบุคคลล่าสุด</h4>
+                    <button class="btn-3d btn-success" onclick="exportExcel()" style="padding:6px 15px; font-size:14px;"><i class="fa-solid fa-file-excel"></i> ส่งออกไฟล์ Excel (.CSV)</button>
+                </div>
+
+                <div style="overflow-x:auto;">
+                    <table class="teacher-table" id="student-table">
+                        <thead>
+                            <tr>
+                                <th>ชั้น</th>
+                                <th>เลขที่</th>
+                                <th>ฐานภารกิจ</th>
+                                <th>เวลาที่ใช้ (วินาที)</th>
+                                <th>จุดผิด (ตัว)</th>
+                                <th>ความแม่นยำ</th>
+                                <th>เวลาบันทึกระบบ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="7" style="color:#999;">ยังไม่มีเด็กๆ ส่งข้อมูลคะแนนเข้ามาในรอบนี้</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <button class="btn-3d btn-danger" style="margin-top:25px; width:100%;" onclick="switchScreen('screen-login')">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> กลับไปหน้าจอนักเรียน
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
